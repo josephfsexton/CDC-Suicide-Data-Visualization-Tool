@@ -25,12 +25,10 @@ sexes <- c("Male", "Female")
 ethnicities <- c("Hispanic", "Non-Hispanic")
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- navbarPage("U.S. Suicide Compiler",
     # Application title
-    titlePanel("U.S. Suicide Compiler"),
-    
-    # Sidebar with a selection input for demographic parameters
-    sidebarLayout(
+    tabPanel("Download Your Dataset", fluidPage(
+        titlePanel("Select your parameters and download your dataset."),
         sidebarPanel(
             checkboxGroupInput("race", "Race of interest?", races, selected="White"),
             checkboxGroupInput("sex", "Sex of interest?", sexes),
@@ -39,8 +37,24 @@ ui <- fluidPage(
         ),
         mainPanel(
             dataTableOutput("data")
-        )
-    )
+        ))
+    ),
+    tabPanel("Data Visualization", 1)
+
+    #titlePanel("U.S. Suicide Compiler"),
+    
+    # Sidebar with a selection input for demographic parameters
+    #sidebarLayout(
+    #    sidebarPanel(
+    #        checkboxGroupInput("race", "Race of interest?", races, selected="White"),
+    #        checkboxGroupInput("sex", "Sex of interest?", sexes),
+    #        sliderInput("age", "Age range of interest?", value=c(1,120), min=1, max=120),
+    #        checkboxGroupInput("ethnicity", "Ethnic status of interest?", ethnicities),
+    #    ),
+    #    mainPanel(
+    #        dataTableOutput("data")
+    #    )
+    #)
 )
 
 race_code = list('White'='white', 'American Indian / Alaskan Native (AIAN)'='aian',
@@ -56,13 +70,11 @@ server <- function(input, output, session) {
     sex_code = list('Male'='M', 'Female'='F')
     ethnic_code = list('Hispanic'='hispanic', 'Non-Hispanic'='non-hispanic')
     output$data <- renderDataTable({
-        head(mtcars)
-    })
-    output$data <- renderDataTable({
         filter(suicides, race_cat==race_code[input$race], sex==sex_code[input$sex],
-             hispanic_cat==ethnic_code[input$ethnicity])
+             hispanic_cat==ethnic_code[input$ethnicity], age>=input$age[1], age<=input$age[2])
     })
 }
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)

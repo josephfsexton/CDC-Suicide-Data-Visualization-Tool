@@ -1,3 +1,8 @@
+---
+output: html_document
+runtime: shiny
+---
+#
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
 #
@@ -5,9 +10,6 @@
 #
 #    http://shiny.rstudio.com/
 #
-# JOSEPHS PATH "C:\\rProjects\\suicide\\suicides2.0\\all_suicides.csv"
-# RASHMIS PATH "/Users/rashmijha/Desktop/suicide project/VH8/all_suicides.csv"
-#suicides <- read.csv("/Users/rashmijha/Desktop/suicide project/VH8/all_suicides.csv")
 
 library(shiny)
 library(dplyr)
@@ -23,7 +25,8 @@ race_code = list('White'='white', 'American Indian / Alaskan Native (AIAN)'='aia
 sex_code = list('Male'='M', 'Female'='F')
 ethnic_code = list('Hispanic'='hispanic', 'Non-Hispanic'='non-hispanic')
 
-demographics <- c("Sex", "Age", "Race", "Ethnicity", "Nationality", "Marital Status")
+demographics <- c("Sex", "Age", "Race", "Ethnicity", "Marital Status", "Education")
+death_details <- c("Place", "Day of Week", "Month", "Year", "Means")
 
 
 ui <- navbarPage("U.S. Suicide Compiler",
@@ -57,8 +60,10 @@ ui <- navbarPage("U.S. Suicide Compiler",
                               ),
                               sidebarLayout(
                                   sidebarPanel(
-                                      selectInput("Parameters", "What demographics are you concerned with?",
-                                                  demographics, multiple=TRUE)
+                                      selectInput("demo", "What demographic variables do you want to filter by?",
+                                                  demographics, multiple=TRUE),
+                                      selectInput("suicide_info", "What suicide details do you want to filter by?",
+                                                  death_details, multiple=TRUE)
                                   ),
                                   mainPanel(
                                       dataTableOutput("data")

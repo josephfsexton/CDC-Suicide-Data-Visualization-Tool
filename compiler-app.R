@@ -40,28 +40,7 @@ ui <- navbarPage("U.S. Suicide Compiler",
         ))
     ),
     tabPanel("Data Visualization", 1)
-
-    #titlePanel("U.S. Suicide Compiler"),
-    
-    # Sidebar with a selection input for demographic parameters
-    #sidebarLayout(
-    #    sidebarPanel(
-    #        checkboxGroupInput("race", "Race of interest?", races, selected="White"),
-    #        checkboxGroupInput("sex", "Sex of interest?", sexes),
-    #        sliderInput("age", "Age range of interest?", value=c(1,120), min=1, max=120),
-    #        checkboxGroupInput("ethnicity", "Ethnic status of interest?", ethnicities),
-    #    ),
-    #    mainPanel(
-    #        dataTableOutput("data")
-    #    )
-    #)
 )
-
-race_code = list('White'='white', 'American Indian / Alaskan Native (AIAN)'='aian',
-                 'Asian'='asian', 'Mixed'='mixed', 'Pacific Islander'='pacific')
-sex_code = list('Male'='M', 'Female'='F')
-ethnic_code = list('Hispanic'='hispanic', 'Non-Hispanic'='non-hispanic')
-race_code['White']
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {

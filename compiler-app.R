@@ -14,13 +14,17 @@ library(dplyr)
 
 suicides <- read.csv("C:\\rProjects\\suicide\\suicides2.0\\all_suicides.csv")
 
-head(suicides$race_cat)
-
 races <- c("White", "Black", "American Indian / Alaskan Native (AIAN)",
            "Asian", "Mixed", "Pacific Islander")
 sexes <- c("Male", "Female")
 ethnicities <- c("Hispanic", "Non-Hispanic")
+race_code = list('White'='white', 'American Indian / Alaskan Native (AIAN)'='aian',
+                     'Asian'='asian', 'Mixed'='mixed', 'Pacific Islander'='pacific')
+sex_code = list('Male'='M', 'Female'='F')
+ethnic_code = list('Hispanic'='hispanic', 'Non-Hispanic'='non-hispanic')
+
 demographics <- c("Sex", "Age", "Race", "Ethnicity", "Nationality", "Marital Status")
+
 
 ui <- navbarPage("U.S. Suicide Compiler",
                  tabPanel("HOME",
@@ -110,10 +114,10 @@ ui <- navbarPage("U.S. Suicide Compiler",
     #tabPanel("Download Your Dataset", fluidPage(
     #    titlePanel("Select your parameters and download your dataset."),
     #    sidebarPanel(
-    #        checkboxGroupInput("race", "Race of interest?", races, selected="White"),
-    #        checkboxGroupInput("sex", "Sex of interest?", sexes),
+    #        checkboxGroupInput("race", "Race of interest?", races, selected=races),
+    #        checkboxGroupInput("sex", "Sex of interest?", sexes, selected=sexes),
     #        sliderInput("age", "Age range of interest?", value=c(1,120), min=1, max=120),
-    #        checkboxGroupInput("ethnicity", "Ethnic status of interest?", ethnicities),
+    #        checkboxGroupInput("ethnicity", "Ethnic status of interest?", ethnicities, selected=ethnicities)
     #    ),
     #    mainPanel(
     #        dataTableOutput("data")
@@ -124,14 +128,11 @@ ui <- navbarPage("U.S. Suicide Compiler",
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-    race_code = list('White'='white', 'American Indian / Alaskan Native (AIAN)'='aian',
-                     'Asian'='asian', 'Mixed'='mixed', 'Pacific Islander'='pacific')
-    sex_code = list('Male'='M', 'Female'='F')
-    ethnic_code = list('Hispanic'='hispanic', 'Non-Hispanic'='non-hispanic')
+
     output$data <- renderDataTable({
-        filter(suicides, race_cat==race_code[input$race], sex==sex_code[input$sex],
-             hispanic_cat==ethnic_code[input$ethnicity], age>=input$age[1], age<=input$age[2])
-    })
+        filter(suicides, race_cat %in% race_code[input$race], sex %in% sex_code[input$sex], 
+               age>=input$age[1], age<=input$age[2], hispanic_cat %in% ethnic_code[input$ethnicity])
+        })
 }
 
 

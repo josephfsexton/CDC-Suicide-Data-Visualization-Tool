@@ -13,8 +13,11 @@ runtime: shiny
 
 
 library(shiny)
+library(dplyr)
 
 suicides <- read.csv("C:\\rProjects\\suicide\\suicides2.0\\all_suicides.csv")
+
+head(suicides$race_cat)
 
 races <- c("White", "Black", "American Indian / Alaskan Native (AIAN)",
            "Asian", "Mixed", "Pacific Islander")
@@ -29,7 +32,7 @@ ui <- fluidPage(
     # Sidebar with a selection input for demographic parameters
     sidebarLayout(
         sidebarPanel(
-            checkboxGroupInput("race", "Race of interest?", races),
+            checkboxGroupInput("race", "Race of interest?", races, selected="White"),
             checkboxGroupInput("sex", "Sex of interest?", sexes),
             sliderInput("age", "Age range of interest?", value=c(1,120), min=1, max=120),
             checkboxGroupInput("ethnicity", "Ethnic status of interest?", ethnicities),
@@ -56,11 +59,10 @@ server <- function(input, output, session) {
         head(mtcars)
     })
     output$data <- renderDataTable({
-        head(filter(suicides, race_cat==race_code[input$race], sex==sex_code[input$sex],
-               age>=input$age[1], age<=input$age[2], hispanic_cat==ethnic_code[input$ethnicity]))
+        filter(suicides, race_cat==race_code[input$race], sex==sex_code[input$sex],
+             hispanic_cat==ethnic_code[input$ethnicity])
     })
 }
-nrow(filter(suicides, race_cat==race_code['White']))
-nrow(filter(suicides, race_cat=='aian'))
+
 # Run the application 
 shinyApp(ui = ui, server = server)

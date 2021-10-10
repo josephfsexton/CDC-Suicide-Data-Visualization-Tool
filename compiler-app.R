@@ -144,8 +144,8 @@ ethnicities <- c("Hispanic", "Non-Hispanic")
 ethnic_code = list('Hispanic' = 'hispanic', 'Non-Hispanic' = 'non-hispanic')
 
 marital_statuses <- c("Married", "Single", "Divorced", "Widowed")
-marital_statuses_code = list(
-  'Married' = 'M',
+ms_code = list(
+  "Married" = 'M',
   "Single" = 'S',
   "Divorced" = 'D',
   "Widowed" = 'W'
@@ -400,7 +400,7 @@ ui <- navbarPage(
               id = "Sex_tab",
               type = "hidden",
               tabPanelBody("null", ""),
-              tabPanelBody("Sex", checkboxGroupInput("sex", "Sex of interest?", sexes))
+              tabPanelBody("Sex", checkboxGroupInput("Sex", "Sex of interest?", sexes))
             ),
             tabsetPanel(
               id = "Race_tab",
@@ -414,7 +414,7 @@ ui <- navbarPage(
               tabPanelBody("null", ""),
               tabPanelBody(
                 "Ethnicity",
-                checkboxGroupInput("ethnicity", "Ethnic status of interest?", ethnicities)
+                checkboxGroupInput("Ethnicity", "Ethnic status of interest?", ethnicities)
               )
             ),
             tabsetPanel(
@@ -424,7 +424,7 @@ ui <- navbarPage(
               tabPanelBody(
                 "Marital Status",
                 checkboxGroupInput(
-                  "marital_status",
+                  "Marital Status",
                   "Marital status of interest?",
                   marital_statuses
                 )
@@ -437,7 +437,7 @@ ui <- navbarPage(
               tabPanelBody(
                 "Education",
                 checkboxGroupInput(
-                  "education_status",
+                  "Education",
                   "Educational status of interest?*",
                   ed_statuses
                 )
@@ -525,10 +525,10 @@ filteredSuicides = suicides
 # Define server logic
 server <- function(input, output, session) {
   toListen <- reactive({
-    list(input$parameters, input$suicide_info, input$min_age, input$max_age, input$Race)
+    list(input$parameters, input$suicide_info, input$min_age, input$max_age, 
+         input$Race, input$Sex, input$Ethnicity, input$`Marital Status`)
   })
-  #edu_con = (suicides == )
-
+  
   
   observeEvent(toListen(), {
     
@@ -561,10 +561,16 @@ server <- function(input, output, session) {
         filteredSuicides = filter(filteredSuicides, Age >= input$min_age, Age <= input$max_age)
       } else if (i == "Race") {
         filteredSuicides = filter(filteredSuicides, Race %in% race_code[input$Race])
-      } else {
-        x = (!!as.name(i))
-        filteredSuicides = filter(filteredSuicides, (!!as.name(i)) %in% input$x)
-      }
+      } else if (i == "Sex") {
+        filteredSuicides = filter(filteredSuicides, Sex %in% sex_code[input$Sex])
+      } else if (i == "Ethnicity") {
+        filteredSuicides = filter(filteredSuicides, Ethnicity %in% ethnic_code[input$Ethnicity])
+      } else if (i == "Marital Status") {
+        filteredSuicides = filter(filteredSuicides, Marital.Status %in% ms_code[input$`Marital Status`])
+      } 
+      # else if (i == "Education") {
+      #   filteredSuicides = filter(filteredSuicides, Education %in% ed_code[input$Education])
+      # } 
     }
     
     output$plot <- renderPlot({
@@ -587,7 +593,6 @@ server <- function(input, output, session) {
         }
         else if (input$y_vars == 'Suicide rate') {
           for (i in x) {
-            print(i)
             if (x_input %in% colnames(pop_params)) {
               y = append(y, 100000 * nrow(filter(filteredSuicides, (
                 !!as.name(x_input)
@@ -606,16 +611,16 @@ server <- function(input, output, session) {
         }
         plot(x, y, xlab = input$x_vars, ylab = input$y_vars)
       } else {
-        if (x_input == "Education") {
-          x = ed_statuses
-          
-          if (input$y_vars == 'Number of suicides') {
-            for (i in 1:length(x)) {
-              print(ed_code[2])
-              y = append(y, nrow(filter(suicides, Education %in% ed_code[i])))
-            }
-          }
-        }
+        # if (x_input == "Education") {
+        #   x = ed_statuses
+        #   
+        #   if (input$y_vars == 'Number of suicides') {
+        #     for (i in 1:length(x)) {
+        #       print(ed_code[2])
+        #       y = append(y, nrow(filter(suicides, Education %in% ed_code[i])))
+        #     }
+        #   }
+        # }
         # else if (x_input == "Sex") {
         #   x = sexes
         # }
@@ -667,4 +672,3 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
-

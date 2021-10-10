@@ -11,6 +11,10 @@
 # temp <- tempfile()
 # download.file("https://github.com/josephfsexton/U.S.-Suicide-Compiler/raw/main/all_suicides.zip", temp)
 # suicides <- read.csv(unz(temp, "all_suicides.csv"))
+# colnames(suicides) <- c("Education", "Month of Death", "Sex", "Age", "Place of Death",
+#                   "Marital Status", "Day of Week", "Year of Death", "Means", "Race",
+#                   "Ethnicity")
+
 #pop_params <- read.csv("https://github.com/josephfsexton/U.S.-Suicide-Compiler/raw/main/pop_param.csv")
 
 library(shiny)
@@ -26,8 +30,82 @@ library(ggplot2)
 
 ########################################################################################################
 
+
+
 sexes <- c("Male", "Female")
 sex_code = list('Male' = 'M', 'Female' = 'F')
+
+
+code <- c('White' = 'white',
+          'American Indian / Alaskan Native (AIAN)' = 'aian',
+          'Asian' = 'asian',
+          'Mixed' = 'mixed',
+          'Pacific Islander' = 'pacific',
+          'Hispanic' = 'hispanic',
+          'Non-Hispanic' = 'non-hispanic',
+          'Married' = 'M',
+          "Single" = 'S',
+          "Divorced" = 'D',
+          "Widowed" = 'W',
+          "Did not finish high school" = c(
+            "000",
+            "010",
+            "020",
+            "030",
+            "040",
+            "050",
+            "060",
+            "070",
+            "080",
+            "90",
+            "100",
+            "110",
+            "11",
+            "21"
+          ),
+          "High school educated" = c("120", "31"),
+          "Post-secondary education (any)" = c(
+            "130",
+            "140",
+            "150",
+            "160",
+            "170",
+            "41",
+            "51",
+            "61",
+            "71",
+            "81",
+            "91"
+          ),
+          "Inpatient" = 1,
+          "Outpatient" = 2,
+          "Dead on Arrival" = 3,
+          "Home" = 4,
+          "Hospice" = 5,
+          "Nursing home/long term care" = 6,
+          "Other/Unknown" = c(7, 9),
+          "Poisoning" = c(
+            "X60", "X61", "X62", "X63", "X64",
+            "X65", "X66", "X67", "X68", "X69"
+          ),
+          "Hanging, strangulation, suffocation" = "X70",
+          "Drowning" = "X71",
+          "Firearm" = c("X72", "X73", "X74"),
+          "Explosive" = "X75",
+          "Smoke, burning, flames" = c("X76", "X77"),
+          "Stabbing" = "X78",
+          "Blunt force" = "X79",
+          "Jumping from a high place" = "X80",
+          "Hit by moving object" = "X81",
+          "Crashed motor vehicle" = "X82",
+          "Other" = c("X83", "X84", "Y87"),
+          "Sunday" = 1,
+          "Monday" = 2,
+          "Tuesday" = 3,
+          "Wednesday" = 4,
+          "Thursday" = 5,
+          "Friday" = 6,
+          "Saturday" = 7)
 
 races <-
   c(
@@ -135,16 +213,8 @@ means_stat <-
 means_code <-
   c(
     "Poisoning" = c(
-      "X60",
-      "X61",
-      "X62",
-      "X63",
-      "X64",
-      "X65",
-      "X66",
-      "X67",
-      "X68",
-      "X69"
+      "X60", "X61", "X62", "X63", "X64",
+      "X65", "X66", "X67", "X68", "X69"
     ),
     "Hanging, strangulation, suffocation" = "X70",
     "Drowning" = "X71",
@@ -428,7 +498,9 @@ server <- function(input, output, session) {
     } else {
       # HIST
     }
-    plot(mtcars$wt, mtcars$mpg)
+    x_cat = input$x_vars
+    y_cat = input$y_vars
+    plot(suicides$x_cat, suicides$y_cat, xlim = c(0,100), ylim = c(0,100))
   })
   
   observeEvent(toListen(), {

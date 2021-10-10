@@ -71,7 +71,6 @@ ed_code <-
     "Post-secondary education (any)" = c("130", "140", "150", "160", "170", "41", "51",
                                          "61", "71", "81", "91")
   )
-#ed_statuses_code = list('Married' = 'M', "Single"='S', "Divorced"='D', "Widowed"='W')
 
 POD_statuses <-
   c(
@@ -159,6 +158,7 @@ dem_code = list(
 )
 death_details <- c("Place", "Day of Week", "Month", "Year", "Means")
 chosen_factors <- c(demographics, death_details)
+cont_factors <- c("Age", "Year", "Month")
 
 outcomes <-
   c("Suicide rate", "Number of suicides", "Percent by method")
@@ -386,9 +386,16 @@ ui <- navbarPage(
 # Define server logic
 server <- function(input, output, session) {
   toListen <- reactive({
-    list(input$parameters, input$suicide_info, input$graph_gen)
+    list(input$parameters, input$suicide_info)
   })
+  
   output$plot <- renderPlot({
+    
+    if (input$x_vars %in% cont_factors){
+      # PLOT
+    } else {
+      # HIST
+    }
     plot(mtcars$wt, mtcars$mpg)
   })
   

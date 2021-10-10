@@ -106,8 +106,25 @@ means_stat <-
     "Blunt force",
     "Jumping from a high place",
     "Hit by moving object",
-    "Crashing motor vehicle",
+    "Crashed motor vehicle",
     "Other"
+  )
+
+means_code <-
+  c(
+    "Poisoning" = c("X60", "X61", "X62", "X63", "X64", "X65", "X66", "X67",
+                    "X68", "X69"),
+    "Hanging, strangulation, suffocation" = "X70",
+    "Drowning" = "X71",
+    "Firearm" = c("X72", "X73", "X74"),
+    "Explosive" = "X75",
+    "Smoke, burning, flames" = c("X76", "X77"),
+    "Stabbing" = "X78",
+    "Blunt force" = "X79",
+    "Jumping from a high place" = "X80",
+    "Hit by moving object" = "X81",
+    "Crashed motor vehicle" = "X82",
+    "Other" = c("X83", "X84", "Y87")
   )
 
 days <-
@@ -119,6 +136,17 @@ days <-
     "Friday",
     "Saturday")
 
+days_code <-
+  c(
+    "Sunday" = 1,
+    "Monday"= 2,
+    "Tuesday" = 3,
+    "Wednesday" = 4,
+    "Thursday" = 5,
+    "Friday" = 6,
+    "Saturday" = 7
+  )
+
 demographics <-
   c("Sex", "Age", "Race", "Ethnicity", "Marital Status", "Education")
 dem_code = list(
@@ -126,8 +154,8 @@ dem_code = list(
   "Race" = races,
   "Ethnicity" = ethnicities,
   "Marital Status" = marital_statuses,
-  "Education",
-  "Means"
+  "Education" = ed_statuses,
+  "Means" = means_stat
 )
 death_details <- c("Place", "Day of Week", "Month", "Year", "Means")
 chosen_factors <- c(demographics, death_details)
@@ -194,13 +222,13 @@ ui <- navbarPage(
             multiple = TRUE
           ),
           selectInput(
-            "x-vars",
+            "x_vars",
             "What variable do you want on your x-axis?",
             chosen_factors,
             multiple = FALSE
           ),
           selectInput(
-            "y-vars",
+            "y_vars",
             "What variable do you want on your y-axis?",
             outcomes,
             multiple = FALSE
@@ -320,7 +348,7 @@ ui <- navbarPage(
               tabPanelBody("null", ""),
               tabPanelBody("Year", splitLayout(
                 numericInput(
-                  "yod-start",
+                  "yod_start",
                   "Start Year",
                   value = 2009,
                   min = 2009,
@@ -328,7 +356,7 @@ ui <- navbarPage(
                   step = 1,
                 ),
                 numericInput(
-                  "yod-end",
+                  "yod_end",
                   "End Year",
                   value = 2019,
                   min = 2009,
@@ -350,7 +378,9 @@ ui <- navbarPage(
       
     )
   ),
-  tabPanel(id="graph_tab", type="hidden", tabPanelBody("null", ""), tabPanelBody("GraphO", "TEST GRPAH"))
+  tabPanel("GRAPH VISUALIZATION",
+           id="graph_tab",
+           plotOut)
 )
 
 generateGraph <- function(input){

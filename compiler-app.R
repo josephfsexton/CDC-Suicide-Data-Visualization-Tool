@@ -58,18 +58,41 @@ marital_statuses_code = list(
 )
 
 ed_statuses <-
-  c(
-    "Did not finish high school",
+  c("Did not finish high school",
     "High school educated",
-    "College educated"
-  )
+    "College educated")
 ed_code <-
   c(
-    "Did not finish high school" = c("000", "010", "020", "030", "040", "050", "060",
-                                     "070", "080", "90", "100", "110", "11", "21"),
+    "Did not finish high school" = c(
+      "000",
+      "010",
+      "020",
+      "030",
+      "040",
+      "050",
+      "060",
+      "070",
+      "080",
+      "90",
+      "100",
+      "110",
+      "11",
+      "21"
+    ),
     "High school educated" = c("120", "31"),
-    "Post-secondary education (any)" = c("130", "140", "150", "160", "170", "41", "51",
-                                         "61", "71", "81", "91")
+    "Post-secondary education (any)" = c(
+      "130",
+      "140",
+      "150",
+      "160",
+      "170",
+      "41",
+      "51",
+      "61",
+      "71",
+      "81",
+      "91"
+    )
   )
 
 POD_statuses <-
@@ -90,7 +113,7 @@ POD_code <-
     "Home" = 4,
     "Hospice" = 5,
     "Nursing home/long term care" = 6,
-    "Other/Unknown" = c(7,9)
+    "Other/Unknown" = c(7, 9)
   )
 
 means_stat <-
@@ -111,8 +134,18 @@ means_stat <-
 
 means_code <-
   c(
-    "Poisoning" = c("X60", "X61", "X62", "X63", "X64", "X65", "X66", "X67",
-                    "X68", "X69"),
+    "Poisoning" = c(
+      "X60",
+      "X61",
+      "X62",
+      "X63",
+      "X64",
+      "X65",
+      "X66",
+      "X67",
+      "X68",
+      "X69"
+    ),
     "Hanging, strangulation, suffocation" = "X70",
     "Drowning" = "X71",
     "Firearm" = c("X72", "X73", "X74"),
@@ -138,7 +171,7 @@ days <-
 days_code <-
   c(
     "Sunday" = 1,
-    "Monday"= 2,
+    "Monday" = 2,
     "Tuesday" = 3,
     "Wednesday" = 4,
     "Thursday" = 5,
@@ -169,7 +202,7 @@ outcomes <-
 
 ########################################################################################################
 
-# UI 
+# UI
 
 ########################################################################################################
 
@@ -233,7 +266,7 @@ ui <- navbarPage(
             outcomes,
             multiple = FALSE
           ),
-          actionButton("graph_gen", "Generate Graph", onclick=print("CLICKED"))
+          actionButton("graph_gen", "Generate Graph", onclick = print("CLICKED"))
         ),
         mainPanel (
           column(
@@ -379,7 +412,7 @@ ui <- navbarPage(
     )
   ),
   tabPanel("GRAPH VISUALIZATION",
-           id="graph_tab",
+           id = "graph_tab",
            plotOutput("plot"))
 )
 
@@ -390,8 +423,7 @@ server <- function(input, output, session) {
   })
   
   output$plot <- renderPlot({
-    
-    if (input$x_vars %in% cont_factors){
+    if (input$x_vars %in% cont_factors) {
       # PLOT
     } else {
       # HIST
@@ -400,7 +432,6 @@ server <- function(input, output, session) {
   })
   
   observeEvent(toListen(), {
-    
     for (i in chosen_factors) {
       if (i %in% input$suicide_info | i %in% input$parameters) {
         if (i == "Day of Week") {

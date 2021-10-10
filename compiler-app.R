@@ -9,20 +9,21 @@
 # RASHMIS PATH "/Users/rashmijha/Desktop/suicide project/VH8/all_suicides.csv"
 
 # temp <- tempfile()
-# download.file("https://github.com/josephfsexton/U.S.-Suicide-Compiler/raw/main/all_suicides.zip", temp)
+# 
+# download.file("https://github.com/josephfsexton/CDC-Suicide-Data-Visualization-Tool/raw/main/all_suicides.zip", temp)
 # suicides <- read.csv(unz(temp, "all_suicides.csv"))
 # colnames(suicides) <- c("X", "Education", "Month of Death", "Sex", "Age", "Place of Death",
 #                     "Marital Status", "Day of Week", "Year of Death", "Means", "Race",
 #                     "Ethnicity")
-#
-# pop_params <- read.csv("https://github.com/josephfsexton/U.S.-Suicide-Compiler/raw/main/pop_param.csv")
+# 
+# pop_params <- read.csv("https://github.com/josephfsexton/CDC-Suicide-Data-Visualization-Tool/raw/main/pop_param.csv")
 # colnames(pop_params) <- c("X", "Year of Death", "Sex", "Race", "Ethnicity", "Marital Status",
 #                           "Age", "Pop", "True", "Mult")
-#
-# library(shiny)
-# library(dplyr)
-# library(shinyjs)
-# library(ggplot2)
+
+library(shiny)
+library(dplyr)
+library(shinyjs)
+library(ggplot2)
 
 #install.packages('shinyjs')
 
@@ -131,6 +132,7 @@ races <-
     "Pacific Islander"
   )
 race_code = list(
+  'Black' = 'black',
   'White' = 'white',
   'American Indian / Alaskan Native (AIAN)' = 'aian',
   'Asian' = 'asian',
@@ -151,40 +153,45 @@ marital_statuses_code = list(
 
 ed_statuses <-
   list("Did not finish high school",
-    "High school educated",
-    "College educated")
+       "High school educated",
+       "College educated")
+
+dnf <- c(
+  "000",
+  "010",
+  "020",
+  "030",
+  "040",
+  "050",
+  "060",
+  "070",
+  "080",
+  "90",
+  "100",
+  "110",
+  "11",
+  "21"
+)
+
+hse <- c("120", "31")
+
+sce <- c(
+  "130",
+  "140",
+  "150",
+  "160",
+  "170",
+  "41",
+  "51",
+  "61",
+  "71",
+  "81",
+  "91"
+)
+
 ed_code <-
   list(
-    "Did not finish high school" = c(
-      "000",
-      "010",
-      "020",
-      "030",
-      "040",
-      "050",
-      "060",
-      "070",
-      "080",
-      "90",
-      "100",
-      "110",
-      "11",
-      "21"
-    ),
-    "High school educated" = c("120", "31"),
-    "Post-secondary education (any)" = c(
-      "130",
-      "140",
-      "150",
-      "160",
-      "170",
-      "41",
-      "51",
-      "61",
-      "71",
-      "81",
-      "91"
-    )
+    dnf, hse, sce
   )
 
 POD_statuses <-
@@ -360,8 +367,7 @@ ui <- navbarPage(
             outcomes,
             multiple = FALSE,
             selected = "Number of suicides"
-          ),
-          actionButton("graph_gen", "Generate Graph", onclick = print("CLICKED"))
+          )
         ),
         mainPanel (
           column(
@@ -373,7 +379,7 @@ ui <- navbarPage(
               tabPanelBody("Age",
                            splitLayout(
                              numericInput(
-                               "min-age",
+                               "min_age",
                                "Min Age (0-120)",
                                value = 0,
                                min = 0,
@@ -381,7 +387,7 @@ ui <- navbarPage(
                                step = 1,
                              ),
                              numericInput(
-                               "max-age",
+                               "max_age",
                                "Max Age (0-120)",
                                value = 120,
                                min = 0,
@@ -514,128 +520,20 @@ ui <- navbarPage(
            plotOutput("plot"))
 )
 
+filteredSuicides = suicides
+
 # Define server logic
 server <- function(input, output, session) {
   toListen <- reactive({
-    list(input$parameters, input$suicide_info)
+    list(input$parameters, input$suicide_info, input$min_age, input$max_age, input$Race)
   })
   #edu_con = (suicides == )
-  output$plot <- renderPlot({
-    x_input = input$x_vars
-    y = c()
-    if (x_input %in% cont_factors) {
-      if (x_input == "Month of Death") {
-        x = 1:12
-      }
-      else if (x_input == "Year of Death") {
-        x = 2009:2019
-      }
-      else if (x_input == "Age") {
-        x = 1:85
-      }
-      if (input$y_vars == 'Number of suicides') {
-        for (i in x) {
-          print(x_input)
-          y = append(y, nrow(filter(suicides, (
-            !!as.name(x_input)
-          ) == i)))
-        }
-      }
-      else if (input$y_vars == 'Suicide rate') {
-        for (i in x) {
-          print(i)
-          if (x_input %in% colnames(pop_params)) {
-            y = append(y, 100000 * nrow(filter(suicides, (
-              !!as.name(x_input)
-            ) == i)) /
-              sum((filter(
-                pop_params, (!!as.name(x_input)) == i
-              ))$True))
-          }
-          else if (x_input == "Month of Death") {
-            y = append(y, 100000 * nrow(filter(suicides, (
-              !!as.name(x_input)
-            ) == i)) /
-              (sum(pop_params$True) / 12))
-          }
-        }
-      }
-      plot(x, y, xlab = input$x_vars, ylab = input$y_vars)
-    } else {
-      if (x_input == "Education") {
-        x = ed_statuses
-      }
-      else if (x_input == "Sex") {
-        x = sexes
-      }
-      else if (x_input == "Place of Death") {
-        x = POD_statuses
-      }
-      else if (x_input == "Marital Status") {
-        x = marital_statuses
-      }
-      else if (x_input == "Day of Week") {
-        x = days
-      }
-      else if (x_input == "Ethnicity") {
-        x = ethnicities
-      }
-      else if (x_input == "Race") {
-        x = races
-      }
-      else if (x_input == "Means") {
-        x = means_stat
-      }
-      if (input$y_vars == 'Number of suicides') {
-        for (i in x) {
-          print(code[i])
-          y = append(y, nrow(filter(suicides, (
-            !!as.name(x_input)
-          ) %in% code[i]$(!!as.name(i)))))
-        }
-      }
-      else if (input$y_vars == 'Suicide rate') {
-        for (i in x) {
-          print(i)
-          if (x_input %in% colnames(pop_params)) {
-            y = append(y, 100000 * nrow(filter(suicides, (
-              !!as.name(x_input)
-            ) == i)) /
-              sum((filter(
-                pop_params, (!!as.name(x_input)) == i
-              ))$True))
-          }
-        }
-      }
-      # ggplot(data = filter(cumulative_sex, Ages < 85)) +
-      #   stat_smooth(aes(x = Ages, y = `M Rate`, color = 'red'), method = "loess", span = 0.50) +
-      #   geom_point(aes(x = Ages, y = `M Rate`, color = 'red')) +
-      #   stat_smooth(aes(x = Ages, y = `F Rate`, color = 'blue'), method = "loess", span = 0.50) +
-      #   geom_point(aes(x = Ages, y = `F Rate`, color = 'blue')) +
-      #   scale_fill_discrete(name = 'Sex') + scale_color_discrete('Sex', labels = c('Female', 'Male')) +
-      #   xlab('Age in years') + ylab('Suicide rate per 100,000') +
-      #   theme(axis.line.x = element_line(), axis.line.y = element_line(),
-      #         line = element_line(size = 1), axis.text = element_text(size = 11, face = 'bold'),
-      #         legend.title = element_text(size = 10, face = 'bold'), legend.text = element_text(size = 10, face = 'bold'),
-      #         axis.title = element_text(size = 12, face = 'bold'))
-      df = data.frame(cbind(x,y))
-      print(df)
-      
-      ggplot(data=(data.frame(cbind(x_axis=x, y_axis=y)))) +
-        geom_bar(stat="identity",aes(x=x_axis, y=y_axis)) +
-        xlab(input$x_vars) + ylab(input$y_vars)
-      
-    }
-    # plot(
-    #   #data=filter(suicides, edu_con, month_con, sex_con, age_con,
-    #   #               place_con, marst_con, day_con, year_con, icd_con,
-    #   #               race_con, hisp_con),
-    #      x=x_input, y=input$y_vars, xlim = c(0,100), ylim = c(0,100),
-    #      xlab = input$x_vars, ylab = input$y_vars)
-    #plot(mtcars, x=mpg, y=wt)
-  })
+
   
   observeEvent(toListen(), {
+    
+    filteredSuicides = suicides
+    
     for (i in chosen_factors) {
       if (i %in% input$suicide_info | i %in% input$parameters) {
         if (i == "Day of Week") {
@@ -657,6 +555,105 @@ server <- function(input, output, session) {
         }
       }
     }
+    
+    for (i in input$parameters) {
+      if (i == "Age") {
+        filteredSuicides = filter(filteredSuicides, Age >= input$min_age, Age <= input$max_age)
+      } else if (i == "Race") {
+        filteredSuicides = filter(filteredSuicides, Race %in% race_code[input$Race])
+      } else {
+        x = (!!as.name(i))
+        filteredSuicides = filter(filteredSuicides, (!!as.name(i)) %in% input$x)
+      }
+    }
+    
+    output$plot <- renderPlot({
+      x_input = input$x_vars
+      y = c()
+      if (x_input %in% cont_factors) {
+        if (x_input == "Month of Death") {
+          x = 1:12
+        }
+        else if (x_input == "Year of Death") {
+          x = 2009:2019
+        }
+        else if (x_input == "Age") {
+          x = 1:85
+        }
+        if (input$y_vars == 'Number of suicides') {
+          for (i in x) {
+            y = append(y, nrow(filter(filteredSuicides, (!!as.name(x_input)) == i)))
+          }
+        }
+        else if (input$y_vars == 'Suicide rate') {
+          for (i in x) {
+            print(i)
+            if (x_input %in% colnames(pop_params)) {
+              y = append(y, 100000 * nrow(filter(filteredSuicides, (
+                !!as.name(x_input)
+              ) == i)) /
+                sum((filter(
+                  pop_params, (!!as.name(x_input)) == i
+                ))$True))
+            }
+            else if (x_input == "Month of Death") {
+              y = append(y, 100000 * nrow(filter(filteredSuicides, (
+                !!as.name(x_input)
+              ) == i)) /
+                (sum(pop_params$True) / 12))
+            }
+          }
+        }
+        plot(x, y, xlab = input$x_vars, ylab = input$y_vars)
+      } else {
+        if (x_input == "Education") {
+          x = ed_statuses
+          
+          if (input$y_vars == 'Number of suicides') {
+            for (i in 1:length(x)) {
+              print(ed_code[2])
+              y = append(y, nrow(filter(suicides, Education %in% ed_code[i])))
+            }
+          }
+        }
+        # else if (x_input == "Sex") {
+        #   x = sexes
+        # }
+        # else if (x_input == "Place of Death") {
+        #   x = POD_statuses
+        # }
+        # else if (x_input == "Marital Status") {
+        #   x = marital_statuses
+        # }
+        # else if (x_input == "Day of Week") {
+        #   x = days
+        # }
+        # else if (x_input == "Ethnicity") {
+        #   x = ethnicities
+        # }
+        # else if (x_input == "Race") {
+        #   x = races
+        # }
+        # else if (x_input == "Means") {
+        #   x = means_stat
+        # }
+        # 
+        # df = data.frame(cbind(x,y))
+        # print(df)
+        # ggplot(data=(data.frame(cbind(x_axis=x, y_axis=y)))) +
+        #   geom_bar(stat="identity",aes(x=x_axis, y=y_axis)) +
+        #   xlab(input$x_vars) + ylab(input$y_vars)
+        
+      }
+      # plot(
+      #   #data=filter(suicides, edu_con, month_con, sex_con, age_con,
+      #   #               place_con, marst_con, day_con, year_con, icd_con,
+      #   #               race_con, hisp_con),
+      #      x=x_input, y=input$y_vars, xlim = c(0,100), ylim = c(0,100),
+      #      xlab = input$x_vars, ylab = input$y_vars)
+      #plot(mtcars, x=mpg, y=wt)
+    })
+    
   })
   
   

@@ -7,11 +7,16 @@
 
 # JOSEPHS PATH "C:\\rProjects\\suicide\\suicides2.0\\all_suicides.csv"
 # RASHMIS PATH "/Users/rashmijha/Desktop/suicide project/VH8/all_suicides.csv"
-# suicides <- read.csv("https://drive.google.com/uc?id=1B190IntsI3pLGygAvRmwkq3DMYjHy1cI")
+
+# temp <- tempfile()
+# download.file("https://github.com/josephfsexton/U.S.-Suicide-Compiler/raw/main/all_suicides.zip", temp)
+# suicides <- read.csv(unz(temp, "all_suicides.csv"))
+#pop_params <- read.csv("https://github.com/josephfsexton/U.S.-Suicide-Compiler/raw/main/pop_param.csv")
 
 library(shiny)
 library(dplyr)
 library(shinyjs)
+library(ggplot2)
 
 #install.packages('shinyjs')
 
@@ -55,8 +60,16 @@ marital_statuses_code = list(
 ed_statuses <-
   c(
     "Did not finish high school",
-    "High school educated (1-4 years)",
-    "College educated (1-4 years)"
+    "High school educated",
+    "College educated"
+  )
+ed_code <-
+  c(
+    "Did not finish high school" = c("000", "010", "020", "030", "040", "050", "060",
+                                     "070", "080", "90", "100", "110", "11", "21"),
+    "High school educated" = c("120", "31"),
+    "Post-secondary education (any)" = c("130", "140", "150", "160", "170", "41", "51",
+                                         "61", "71", "81", "91")
   )
 #ed_statuses_code = list('Married' = 'M', "Single"='S', "Divorced"='D', "Widowed"='W')
 
@@ -69,6 +82,16 @@ POD_statuses <-
     "Hospice",
     "Nursing home/long term care",
     "Other/Unknown"
+  )
+POD_code <-
+  c(
+    "Inpatient" = 1,
+    "Outpatient" = 2,
+    "Dead on Arrival" = 3,
+    "Home" = 4,
+    "Hospice" = 5,
+    "Nursing home/long term care" = 6,
+    "Other/Unknown" = c(7,9)
   )
 
 means_stat <-
@@ -153,7 +176,6 @@ ui <- navbarPage(
                                   age relates to suicide rate, and how this relation varies by sex. But what if
                                   you're specifically interested in this potential sex difference in the Black
                                   population? Then, here, you'd select Black under the Demographic -> Race dropdown.
-
                                   By default, we'll assume you're interested in all people who died by suicide."
         )
       ),

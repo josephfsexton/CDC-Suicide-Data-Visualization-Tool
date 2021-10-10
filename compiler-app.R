@@ -380,23 +380,19 @@ ui <- navbarPage(
   ),
   tabPanel("GRAPH VISUALIZATION",
            id="graph_tab",
-           plotOut)
+           plotOutput("plot"))
 )
-
-generateGraph <- function(input){
-  print("YOU HAVE ENTERED THIS FUNCTOI")
-  updateTabsetPanel(inputId = "graph_tab", selected = "GraphO")
-  
-}
 
 # Define server logic
 server <- function(input, output, session) {
   toListen <- reactive({
     list(input$parameters, input$suicide_info, input$graph_gen)
   })
+  output$plot <- renderPlot({
+    plot(mtcars$wt, mtcars$mpg)
+  })
   
   observeEvent(toListen(), {
-    onclick("graph_gen", generateGraph())
     
     for (i in chosen_factors) {
       if (i %in% input$suicide_info | i %in% input$parameters) {
@@ -420,8 +416,6 @@ server <- function(input, output, session) {
       }
     }
   })
-  
-  onclick("graph_gen", generateGraph())
   
   
   

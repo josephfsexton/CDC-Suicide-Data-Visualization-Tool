@@ -8,23 +8,24 @@
 # JOSEPHS PATH "C:\\rProjects\\suicide\\suicides2.0\\all_suicides.csv"
 # RASHMIS PATH "/Users/rashmijha/Desktop/suicide project/VH8/all_suicides.csv"
 
-# temp <- tempfile()
+#temp <- tempfile()
+#download.file("https://github.com/josephfsexton/US-Suicide-Data-Compiler/blob/main/all_suicides.zip", temp)
+#print(temp)
+#suicides <- read.csv(unz(temp, "all_suicides.csv"))
+suicides <- read.csv("C:\\rProjects\\suicide\\US_Suicide_Compiler\\all_suicides.csv")
+colnames(suicides) <- c("X", "Education", "Month of Death", "Sex", "Age", "Place of Death",
+                     "Marital Status", "Day of Week", "Year of Death", "Means", "Race",
+                     "Ethnicity")
 # 
-# download.file("https://github.com/josephfsexton/CDC-Suicide-Data-Visualization-Tool/raw/main/all_suicides.zip", temp)
-# suicides <- read.csv(unz(temp, "all_suicides.csv"))
-# colnames(suicides) <- c("X", "Education", "Month of Death", "Sex", "Age", "Place of Death",
-#                     "Marital Status", "Day of Week", "Year of Death", "Means", "Race",
-#                     "Ethnicity")
-# 
-# pop_params <- read.csv("https://github.com/josephfsexton/CDC-Suicide-Data-Visualization-Tool/raw/main/pop_param.csv")
-# colnames(pop_params) <- c("X", "Year of Death", "Sex", "Race", "Ethnicity", "Marital Status",
-#                           "Age", "Pop", "True", "Mult")
+pop_params <- read.csv("https://github.com/josephfsexton/US-Suicide-Data-Compiler/blob/main/pop_param.csv")
+colnames(pop_params) <- c("X", "Year of Death", "Sex", "Race", "Ethnicity", "Marital Status",
+                           "Age", "Pop", "True", "Mult")
 
 library(shiny)
 library(dplyr)
 library(shinyjs)
 library(ggplot2)
-
+library(shinythemes)
 #install.packages('shinyjs')
 
 ########################################################################################################
@@ -307,39 +308,49 @@ outcomes <-
 ########################################################################################################
 
 ui <- navbarPage(
-  "U.S. Suicide Compiler",
+  theme = shinytheme("united"),
+  "U.S. Suicide Data Compiler",
   tabPanel("HOME",
            fluidPage(
-             titlePanel("Welcome to the U.S. Suicide Compiler!"),
+             titlePanel("Welcome to the U.S. Suicide Data Compiler."),
              fluidRow(
                column(
                  9,
-                 "Suicide varies by population, but basic demographic
-                                         questions remain to be answered. The U.S. Suicide Compiler
-                                         brings together data on your specific demographic of interest,
-                                         using data from the Centers for Disease Control and Prevention,
-                                         to look at intra-population differences. For instance, age is a
-                                         risk factor for White males, but not Black females. Our website
-                                         lets you plot differences by any of 70+ variables of interest,
-                                         including race, ethnicity, means of suicide, place of death,
-                                         age, and a bunch more."
+                 "We noticed that a lot of suicide models and graphics are biased
+                 towards the majority of suicides -- those of White males. In the
+                 process, we lose track of how certain variables might interact
+                 differently with different demographics. That is, age might be a
+                 risk factor for White men, but not for Black women. Our site lets
+                 you pick a population of interest, then graph a variable of interest
+                 against certain outcome variables. Try it out!"
                )
+             ),
+             headerPanel(""),
+             fluidRow(
+               column(
+                 9,
+                 "This project pertains to suicide, which can be a distressing topic. Evidence-
+                 based resources are available in the National Suicide Prevention Lifeline 
+                 (1-800-273-8255) and the Crisis Text Line (text HOME to 741741)."
+               )
+               
              )
+             
            )),
   tabPanel(
     "SELECT SAMPLE",
     fluidPage(
-      titlePanel("First, select the groups to include in your sample."),
+      titlePanel("Select the population you're interested in."),
       fluidRow(
         column(
           9,
-          "Later on, you'll do the actual comparison. You might look at how
-                                  age relates to suicide rate, and how this relation varies by sex. But what if
-                                  you're specifically interested in this potential sex difference in the Black
-                                  population? Then, here, you'd select Black under the Demographic -> Race dropdown.
-                                  By default, we'll assume you're interested in all people who died by suicide."
+          "Pick from sex, age, race, ethnicity, marital status, and education in terms
+          of demographics. If you are interested in specific kinds of suicides, you can
+          sort by place of death, day of the week of death, month of death, year of
+          death, and means of suicide."
         )
       ),
+      headerPanel(""),
       sidebarLayout(
         sidebarPanel(
           selectInput(
@@ -380,18 +391,18 @@ ui <- navbarPage(
                            splitLayout(
                              numericInput(
                                "min_age",
-                               "Min Age (0-120)",
+                               "Min Age (0-84)",
                                value = 0,
                                min = 0,
-                               max = 120,
+                               max = 84,
                                step = 1,
                              ),
                              numericInput(
                                "max_age",
-                               "Max Age (0-120)",
-                               value = 120,
+                               "Max Age (0-84)",
+                               value = 84,
                                min = 0,
-                               max = 120,
+                               max = 84,
                                step = 1,
                              )
                            ))
@@ -521,7 +532,7 @@ ui <- navbarPage(
 )
 
 filteredSuicides = suicides
-
+filteredPop = pop_params
 # Define server logic
 server <- function(input, output, session) {
   toListen <- reactive({
@@ -533,6 +544,7 @@ server <- function(input, output, session) {
   observeEvent(toListen(), {
     
     filteredSuicides = suicides
+    filteredPop = pop_params
     
     for (i in chosen_factors) {
       if (i %in% input$suicide_info | i %in% input$parameters) {
@@ -559,14 +571,19 @@ server <- function(input, output, session) {
     for (i in input$parameters) {
       if (i == "Age") {
         filteredSuicides = filter(filteredSuicides, Age >= input$min_age, Age <= input$max_age)
+        filteredPop = filter(filteredPop, Age >= input$min_age, Age <= input$max_age)
       } else if (i == "Race") {
         filteredSuicides = filter(filteredSuicides, Race %in% race_code[input$Race])
+        filteredPop = filter(filteredPop, Race %in% race_code[input$Race])
       } else if (i == "Sex") {
         filteredSuicides = filter(filteredSuicides, Sex %in% sex_code[input$Sex])
+        filteredPop = filter(filteredPop, Sex %in% sex_code[input$Sex])
       } else if (i == "Ethnicity") {
         filteredSuicides = filter(filteredSuicides, Ethnicity %in% ethnic_code[input$Ethnicity])
+        filteredPop = filter(filteredPop, Ethnicity %in% ethnic_code[input$Ethnicity])
       } else if (i == "Marital Status") {
-        filteredSuicides = filter(filteredSuicides, Marital.Status %in% ms_code[input$`Marital Status`])
+        filteredSuicides = filter(filteredSuicides, `Marital Status` %in% marital_statuses_code[input$`Marital Status`])
+        filteredPop = filter(filteredPop, `Marital Status` %in% marital_statuses_code[input$`Marital Status`])
       } 
       # else if (i == "Education") {
       #   filteredSuicides = filter(filteredSuicides, Education %in% ed_code[input$Education])
@@ -598,18 +615,30 @@ server <- function(input, output, session) {
                 !!as.name(x_input)
               ) == i)) /
                 sum((filter(
-                  pop_params, (!!as.name(x_input)) == i
+                  filteredPop, (!!as.name(x_input)) == i
                 ))$True))
             }
             else if (x_input == "Month of Death") {
               y = append(y, 100000 * nrow(filter(filteredSuicides, (
                 !!as.name(x_input)
               ) == i)) /
-                (sum(pop_params$True) / 12))
+                (sum(filteredPop$True) / 12))
             }
           }
         }
-        plot(x, y, xlab = input$x_vars, ylab = input$y_vars)
+        x_axis = x
+        y_axis = y
+        if(input$y_vars == 'Suicide rate') ylabel = 'Suicide rate (per 100,000)'
+        else ylabel = input$y_vars
+        plot(ggplot(data=(data.frame(cbind(p1 = x_axis, p2 = y_axis))))) +
+          geom_point(aes(x=p1, y=p2)) + 
+          labs(title=paste0(toString(ylabel), " by ", toString(input$x_vars)),
+               x = input$x_vars, y = ylabel) +
+          xlim(c(input$min_age,input$max_age)) + geom_smooth(aes(x=p1, y=p2)) +
+          theme(plot.title = element_text(size=24, face="bold"),
+                axis.line.x = element_line(), axis.line.y = element_line(),
+                line = element_line(size=1), axis.text = element_text(size=18, face="bold"),
+                axis.title = element_text(size=18, face="bold"))
       } else {
         # if (x_input == "Education") {
         #   x = ed_statuses
@@ -672,3 +701,4 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
+

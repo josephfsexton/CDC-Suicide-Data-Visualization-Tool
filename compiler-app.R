@@ -8,25 +8,28 @@
 # JOSEPHS PATH "C:\\rProjects\\suicide\\suicides2.0\\all_suicides.csv"
 # RASHMIS PATH "/Users/rashmijha/Desktop/suicide project/VH8/all_suicides.csv"
 
-#temp <- tempfile()
-#download.file("https://github.com/josephfsexton/US-Suicide-Data-Compiler/blob/main/all_suicides.zip", temp)
-#print(temp)
-#suicides <- read.csv(unz(temp, "all_suicides.csv"))
-suicides <- read.csv("C:\\rProjects\\suicide\\US_Suicide_Compiler\\all_suicides.csv")
-colnames(suicides) <- c("X", "Education", "Month of Death", "Sex", "Age", "Place of Death",
-                     "Marital Status", "Day of Week", "Year of Death", "Means", "Race",
-                     "Ethnicity")
-# 
-pop_params <- read.csv("https://github.com/josephfsexton/US-Suicide-Data-Compiler/blob/main/pop_param.csv")
-colnames(pop_params) <- c("X", "Year of Death", "Sex", "Race", "Ethnicity", "Marital Status",
-                           "Age", "Pop", "True", "Mult")
-
+# install.packages('fansi')
+library(fansi)
+# install.packages('dplyr')
 library(shiny)
 library(dplyr)
 library(shinyjs)
 library(ggplot2)
 library(shinythemes)
-#install.packages('shinyjs')
+
+
+# temp <- tempfile()
+# download.file("https://raw.github.com/josephfsexton/US-Suicide-Data-Compiler/master/all_suicides.zip", temp)
+# print(temp)
+# suicides <- read.csv(unz(temp, "all_suicides.csv"))
+# colnames(suicides) <- c("X", "Education", "Month of Death", "Sex", "Age", "Place of Death",
+#                         "Marital Status", "Day of Week", "Year of Death", "Means", "Race",
+#                         "Ethnicity")
+# pop_params <- read.csv("https://raw.github.com/josephfsexton/US-Suicide-Data-Compiler/master/pop_param.csv")
+# colnames(pop_params) <- c("X", "Year of Death", "Sex", "Race", "Ethnicity", "Marital Status",
+#                           "Age", "Pop", "True", "Mult")
+
+
 
 ########################################################################################################
 

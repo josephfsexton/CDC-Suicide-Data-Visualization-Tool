@@ -25,8 +25,8 @@ population$race <- c(rep('white', 104720/11/2/7),
                      rep('pacific', 104720/11/2/7),
                      rep('mixed', 104720/11/2/7),
                      rep('mixed', 104720/11/2/7))
-population$hisp <- c(rep('hisp', 104720/11/2/7/2),
-                     rep('nonhisp', 104720/11/2/7/2))
+population$hisp <- c(rep('hispanic', 104720/11/2/7/2),
+                     rep('nonhispanic', 104720/11/2/7/2))
 population$marst <- c(rep('M', 104720/11/2/7/2/4),
                       rep('W',104720/11/2/7/2/4),
                       rep('D',104720/11/2/7/2/4),
@@ -61,8 +61,8 @@ find_pop <- function(demo){
   else if(demo$marst == 'W') marst_add = 1
   else if(demo$marst == 'D') marst_add = 2
   else if(demo$marst == 'S') marst_add = 4
-  if(demo$hisp == 'nonhisp') hisp_mult = 0
-  else if(demo$hisp == 'hisp') hisp_mult = 1:23
+  if(demo$hisp == 'nonhispanic') hisp_mult = 0
+  else if(demo$hisp == 'hispanic') hisp_mult = 1:23
   pop_x = c()
   for(mult in hisp_mult){
     pop_x = append(pop_x, 4 + (mult)*6 + marst_add)
@@ -116,9 +116,5 @@ us_pop_size$multiplier = us_pop_size$pop_size / census_pop_size$cens_size
 population$true = population$pop * us_pop_size$multiplier[population$year%%2008]
 
 write.csv(population, "C:\\rProjects\\suicide\\suicides2.0\\pop_param.csv")
-
-
-
-
 
 

@@ -1,1 +1,2 @@
 # U.S.-Suicide-Data-Compiler
+Hi there! I (Joseph) have been working with NVSS data since Summer 2020. Each year, Vanderbilt hosts a hackathon, VandyHacks, and my friend Rashmi Jha and I decided to use this year's to make a web app using my compiled data. There was a lot of cleaning involved since it had been more a side-gig of mine for a while. I'm open to collaboration and advancing this as a tool for scientists, public health officials, policy makers, et cetera. Enjoy!
